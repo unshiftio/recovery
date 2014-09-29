@@ -1,0 +1,33 @@
+{
+  "name": "recovery",
+  "version": "0.0.0",
+  "description": "Recover from a network failure using randomized exponential backoff",
+  "main": "index.js",
+  "scripts": {
+    "test": "mocha --reporter spec --ui bdd test.js"
+  },
+  "keywords": [
+    "random",
+    "exponential",
+    "backoff",
+    "reconnect",
+    "retry",
+    "recovery",
+    "failure",
+    "network",
+    "recon",
+    "connection",
+    "connect",
+    "disconnect"
+  ],
+  "author": "Arnout Kazemier",
+  "license": "MIT",
+  "devDependencies": {
+    "assume": "0.0.x",
+    "mocha": "1.21.x",
+    "pre-commit": "0.0.x"
+  },
+  "dependencies": {
+    "eventemitter3": "0.1.x"
+  }
+}
