@@ -87,9 +87,7 @@ describe('recovery', function () {
     });
 
     it('emits `reconnect` when you need to start the reconnect', function (next) {
-      emitter.once('reconnect', function (fn, opts) {
-        assume(fn).is.a('function');
-
+      emitter.once('reconnect', function (opts) {
         assume(opts).is.a('object');
         assume(opts.attempt).to.equal(1);
         assume(opts.retries).to.equal(recovery.retries);
@@ -184,12 +182,14 @@ describe('recovery', function () {
         next();
       });
 
-      emitter.on('reconnect', function (fn, opts) {
+      emitter.on('reconnect', function (opts) {
         if (opts.attempt === 1) return setTimeout(function () {
-          fn(new Error('Nope, we failed'));
+          recovery.failed(new Error('Nope, we failed'));
         }, 50);
 
-        setTimeout(fn, 50);
+        setTimeout(function () {
+          recovery.success();
+        }, 50);
       });
 
       recovery.timeout = 100;
@@ -211,7 +211,7 @@ describe('recovery', function () {
         next();
       });
 
-      emitter.on('reconnect', function (fn, opts) {
+      emitter.on('reconnect', function (opts) {
         if (opts.attempt === 1) return setTimeout(function () {
           assume(recovery.failed()).is.true();
         }, 50);

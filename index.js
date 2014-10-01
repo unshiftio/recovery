@@ -131,7 +131,7 @@ Recovery.prototype.backoff = function backoff(fn, opts) {
   // `>` because we already incremented the value above.
   //
   if (opts.attempt === opts.retries) {
-    recovery.attempt = recovery.fn = null;
+    recovery.reset();
     fn.call(recovery, new Error('Unable to recover'), opts);
     return recovery;
   }
@@ -160,24 +160,22 @@ Recovery.prototype.backoff = function backoff(fn, opts) {
 
   recovery.setTimeout('reconnect', function delay() {
     opts.duration = (+new Date()) - opts.start;
-    recovery.clear('reconnect');
     opts.backoff = false;
+    recovery.reset();
 
     //
     // Create a `one` function which can only be called once. So we can use the
     // same function for different types of invocations to create a much better
     // and usable API.
     //
-    var connect = recovery.fn =  one(function connect(err) {
-      recovery.clear('reconnect', 'timeout');
-      recovery.fn = null;
-
+    var connect = recovery.fn = one(function connect(err) {
+      recovery.reset();
       if (err) return recovery.backoff(fn, opts);
 
-      recovery.attempt = null;
       fn.call(recovery, undefined, opts);
     });
 
+    recovery.events.emit('reconnect', opts);
     recovery.setTimeout('timeout', function timeout() {
       var err = new Error('Failed to reconnect in a timely manner');
       opts.duration = (+new Date()) - opts.start;
@@ -185,8 +183,6 @@ Recovery.prototype.backoff = function backoff(fn, opts) {
       recovery.events.emit('reconnect timeout', err, opts);
       connect(err);
     }, opts.timeout);
-
-    recovery.events.emit('reconnect', connect, opts);
   }, opts.scheduled);
 
   //
@@ -196,6 +192,16 @@ Recovery.prototype.backoff = function backoff(fn, opts) {
   recovery.events.emit('reconnecting', opts);
 
   return recovery;
+};
+
+/**
+ * Reset the reconnection attempt so it can be re-used again.
+ *
+ * @api public
+ */
+Recovery.prototype.reset = function reset() {
+  this.fn = this.attempt = null;
+  return this.clear('reconnect', 'timeout');
 };
 
 //
