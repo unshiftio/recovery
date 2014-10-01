@@ -4,7 +4,8 @@
   "description": "Recover from a network failure using randomized exponential backoff",
   "main": "index.js",
   "scripts": {
-    "test": "mocha --reporter spec --ui bdd test.js"
+    "test": "mocha --reporter spec --ui bdd test.js",
+    "coverage": "istanbul cover ./node_modules/.bin/_mocha -- --reporter spec --ui bdd test.js"
   },
   "keywords": [
     "random",
@@ -24,10 +25,12 @@
   "license": "MIT",
   "devDependencies": {
     "assume": "0.0.x",
+    "istanbul": "0.3.x",
     "mocha": "1.21.x",
     "pre-commit": "0.0.x"
   },
   "dependencies": {
-    "eventemitter3": "0.1.x"
+    "one-time": "0.0.x",
+    "tick-tock": "0.0.x"
   }
 }
