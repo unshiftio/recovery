@@ -270,4 +270,31 @@ describe('recovery', function () {
       recovery.reconnect();
     });
   });
+
+  describe('#active', function () {
+    it('returns a boolean', function (next) {
+      assume(recovery.active()).is.false();
+
+      emitter.on('reconnected', function (opts) {
+        assume(recovery.active()).is.false();
+        next();
+      });
+
+      emitter.on('reconnecting', function () {
+        assume(recovery.active()).is.true();
+      });
+
+      emitter.on('reconnect', function (opts) {
+        assume(recovery.active()).is.true();
+
+        setTimeout(function () {
+         recovery.success();
+        }, 50);
+      });
+
+      recovery.timeout = 100;
+      recovery.reconnect();
+      assume(recovery.active()).is.true();
+    });
+  });
 });

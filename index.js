@@ -59,6 +59,7 @@ Recovery.prototype.reconnect = function reconnect() {
 
   return this.backoff(function backedoff(err, opts) {
     opts.duration = (+new Date()) - opts.start;
+    recovery.reset();
 
     if (err) return recovery.events.emit('reconnect failed', err, opts);
     recovery.events.emit('reconnected', opts);
@@ -131,7 +132,6 @@ Recovery.prototype.backoff = function backoff(fn, opts) {
   // `>` because we already incremented the value above.
   //
   if (opts.attempt === opts.retries) {
-    recovery.reset();
     fn.call(recovery, new Error('Unable to recover'), opts);
     return recovery;
   }
@@ -161,7 +161,7 @@ Recovery.prototype.backoff = function backoff(fn, opts) {
   recovery.setTimeout('reconnect', function delay() {
     opts.duration = (+new Date()) - opts.start;
     opts.backoff = false;
-    recovery.reset();
+    recovery.clear();
 
     //
     // Create a `one` function which can only be called once. So we can use the
@@ -169,8 +169,10 @@ Recovery.prototype.backoff = function backoff(fn, opts) {
     // and usable API.
     //
     var connect = recovery.fn = one(function connect(err) {
-      recovery.reset();
-      if (err) return recovery.backoff(fn, opts);
+      if (err) {
+        recovery.clear();
+        return recovery.backoff(fn, opts);
+      }
 
       fn.call(recovery, undefined, opts);
     });
@@ -201,7 +203,17 @@ Recovery.prototype.backoff = function backoff(fn, opts) {
  */
 Recovery.prototype.reset = function reset() {
   this.fn = this.attempt = null;
-  return this.clear('reconnect', 'timeout');
+  return this.clear();
+};
+
+/**
+ * Check if the reconnection process is currently active.
+ *
+ * @returns {Boolean}
+ * @api public
+ */
+Recovery.prototype.active = function active() {
+  return !!this.attempt;
 };
 
 //
