@@ -1,5 +1,7 @@
 # Recovery
 
+[![Build Status](https://travis-ci.org/unshiftio/recovery.svg?branch=master)](https://travis-ci.org/unshiftio/recovery)
+
 Recovery provides randomized exponential back off for reconnection attempts. It
 allows you to recover the connection in the most optimal way (for both server
 and client). The exponential back off is randomized to prevent a DDOS like
