@@ -1,6 +1,8 @@
 # Recovery
 
 [![Build Status](https://travis-ci.org/unshiftio/recovery.svg?branch=master)](https://travis-ci.org/unshiftio/recovery)
+[![NPM version](https://badge.fury.io/js/recovery.svg)](http://badge.fury.io/js/recovery)
+[![Coverage Status](https://img.shields.io/coveralls/unshiftio/recovery.svg)](https://coveralls.io/r/unshiftio/recovery?branch=master)
 
 Recovery provides randomized exponential back off for reconnection attempts. It
 allows you to recover the connection in the most optimal way (for both server
