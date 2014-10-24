@@ -15,9 +15,8 @@ function Recovery(eventemitter, options) {
   if (!(this instanceof Recovery)) return new Recovery(eventemitter, options);
   options = options || {};
 
-  this.fn = null;       // Stores the callback.
-  this.timers = {};     // It was either manually setting this or a Tick.call(this);
-  this.attempt = null;  // Stores the current reconnect attempt.
+  this.fn = null;             // Stores the callback.
+  this.attempt = null;        // Stores the current reconnect attempt.
   this.events = eventemitter;
 
   this.max = this.default('max', options);
@@ -25,6 +24,8 @@ function Recovery(eventemitter, options) {
   this.factor = this.default('factor', options);
   this.retries = this.default('retries', options);
   this.timeout = this.default('timeout', options);
+
+  Tick.call(this);
 }
 
 Recovery.prototype = new Tick();
