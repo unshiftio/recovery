@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "mocha --reporter spec --ui bdd test.js",
+    "watch": "mocha --watch --reporter spec --ui bdd test.js",
     "coverage": "istanbul cover ./node_modules/.bin/_mocha -- --reporter spec --ui bdd test.js",
     "test-travis": "istanbul cover node_modules/.bin/_mocha --report lcovonly -- --reporter spec --ui bdd test.js"
   },
