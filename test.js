@@ -14,7 +14,7 @@ describe('recovery', function () {
   });
 
   afterEach(function () {
-    recovery.clear();
+    recovery.destroy();
   });
 
   this.timeout(60000);
@@ -295,6 +295,18 @@ describe('recovery', function () {
       recovery.timeout = 100;
       recovery.reconnect();
       assume(recovery.active()).is.true();
+    });
+  });
+
+  describe('#destroy', function () {
+    it('returns true for the first time', function () {
+      assume(recovery.destroy()).is.true();
+    });
+
+    it('returns false for the second call', function () {
+      assume(recovery.destroy()).is.true();
+      assume(recovery.destroy()).is.false();
+      assume(recovery.destroy()).is.false();
     });
   });
 });

@@ -208,6 +208,21 @@ Recovery.prototype.reset = function reset() {
 };
 
 /**
+ * Destroy the recovery instance and leave no traces around.
+ *
+ * @returns {Boolean} Successful destruction
+ * @api public
+ */
+Recovery.prototype.end = Recovery.prototype.destroy = function destroy() {
+  if (!this.events) return false;
+
+  this.reset();
+  this.events = null;
+
+  return true;
+};
+
+/**
  * Check if the reconnection process is currently active.
  *
  * @returns {Boolean}
