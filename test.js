@@ -1,3 +1,4 @@
+/* istanbul ignore next */
 describe('recovery', function () {
   'use strict';
 
