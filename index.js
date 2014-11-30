@@ -1,6 +1,7 @@
 'use strict';
 
-var Tick = require('tick-tock')
+var millisecond = require('millisecond')
+  , Tick = require('tick-tock')
   , one = require('one-time');
 
 /**
@@ -46,7 +47,9 @@ Recovery.timeout = '30 seconds';  // Maximum timeout for the request to answer.
  * @api private
  */
 Recovery.prototype.default = function defaults(name, opts) {
-  return Tick.parse(name in opts ? opts[name] : (name in this ? this[name] : Recovery[name]));
+  return millisecond(
+    name in opts ? opts[name] : (name in this ? this[name] : Recovery[name])
+  );
 };
 
 /**
