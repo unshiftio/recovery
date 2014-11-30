@@ -2,20 +2,17 @@
 describe('recovery', function () {
   'use strict';
 
-  var EventEmitter = require('events').EventEmitter
-    , Tick = require('tick-tock')
+  var Tick = require('tick-tock')
     , assume = require('assume')
     , Recovery = require('./')
-    , recovery
-    , emitter;
+    , recovery;
 
   beforeEach(function () {
-    emitter = new EventEmitter();
-    recovery = new Recovery(emitter);
+    recovery = new Recovery();
   });
 
   afterEach(function () {
-    recovery.destroy();
+    recovery.reset();
   });
 
   this.timeout(60000);
@@ -25,53 +22,12 @@ describe('recovery', function () {
   });
 
   it('returns a new instance if constructed without new', function () {
-    recovery = Recovery(emitter);
-    assume(recovery).is.instanceOf(Recovery);
-  });
-
-  describe('#default', function () {
-    var opts = {
-      min: 1000
-    };
-
-    it('finds the property in the supplied object', function () {
-      assume(recovery.default('min', opts)).to.equal(opts.min);
-      assume(recovery.default('min', {})).to.not.equal(opts.min);
-    });
-
-    it('defaults to the value specified on the constructor', function () {
-      recovery.min = 4241;
-
-      assume(recovery.default('min', {})).to.equal(4241);
-    });
-
-    it('automatically transforms the value to a number', function () {
-      delete recovery.min;
-
-      assume(Recovery.min).to.be.a('string');
-      assume(recovery.default('min', {})).to.a('number');
-    });
-
-    it('defaults to the "global" Recovery instance', function () {
-      delete recovery.min;
-
-      assume(recovery.default('min', {})).to.equal(Tick.parse(Recovery.min));
-    });
-
-    it('integrates in the constructor', function () {
-      assume(recovery.min).to.equal(Tick.parse(Recovery.min));
-      assume(Recovery.min).to.not.equal(10);
-
-      Recovery.min = 10;
-      recovery = new Recovery();
-      assume(recovery.min).to.equal(Tick.parse(Recovery.min));
-      assume(Recovery.min).to.equal(10);
-    });
+    assume(Recovery()).is.instanceOf(Recovery);
   });
 
   describe('#reconnect', function () {
-    it('emits `reconnecting` when starting', function (next) {
-      emitter.once('reconnecting', function (opts) {
+    it('emits `reconnect scheduled` when starting', function (next) {
+      recovery.once('reconnect scheduled', function (opts) {
         assume(opts).is.a('object');
         assume(opts.attempt).to.equal(1);
         assume(opts.retries).to.equal(recovery.retries);
@@ -88,7 +44,7 @@ describe('recovery', function () {
     });
 
     it('emits `reconnect` when you need to start the reconnect', function (next) {
-      emitter.once('reconnect', function (opts) {
+      recovery.once('reconnect', function (opts) {
         assume(opts).is.a('object');
         assume(opts.attempt).to.equal(1);
         assume(opts.retries).to.equal(recovery.retries);
@@ -104,7 +60,7 @@ describe('recovery', function () {
     });
 
     it('emits `reconnect timeout` when the reconnect attempt timed out', function (next) {
-      emitter.once('reconnect timeout', function (err, opts) {
+      recovery.once('reconnect timeout', function (err, opts) {
         assume(err).is.a('error');
         assume(err.message).contains('time');
 
@@ -127,7 +83,7 @@ describe('recovery', function () {
       var attempts = 0
         , start = Date.now();
 
-      emitter.on('reconnecting', function (opts) {
+      recovery.on('reconnect scheduled', function (opts) {
         attempts++;
 
         assume(opts.attempt).to.equal(attempts);
@@ -143,11 +99,11 @@ describe('recovery', function () {
         assume(opts.duration).to.least((Date.now() - start) - 10);
       });
 
-      emitter.on('reconnect timeout', function (err, opts) {
+      recovery.on('reconnect timeout', function (err, opts) {
         assume(opts.attempt).to.equal(attempts);
       });
 
-      emitter.on('reconnect failed', function (err, opts) {
+      recovery.on('reconnect failed', function (err, opts) {
         assume(err).is.a('error');
         assume(err.message).contains('recover');
 
@@ -156,9 +112,7 @@ describe('recovery', function () {
         assume(opts.duration).to.most(Date.now() - start);
         assume(opts.duration).to.least((Date.now() - start) - 10);
 
-        assume(recovery.fn).to.equal(null);
-        assume(recovery.failed()).is.false();
-        assume(recovery.success()).is.false();
+        assume(recovery._fn).to.equal(null);
 
         next();
       });
@@ -171,25 +125,23 @@ describe('recovery', function () {
     it('emits a `reconnected` event for a successful connection', function (next) {
       var start = Date.now();
 
-      emitter.on('reconnected', function (opts) {
+      recovery.on('reconnected', function (opts) {
         assume(opts.attempt).equals(2);
         assume(opts.duration).to.most(Date.now() - start);
         assume(opts.duration).to.least((Date.now() - start) - 10);
 
-        assume(recovery.fn).to.equal(null);
-        assume(recovery.failed()).is.false();
-        assume(recovery.success()).is.false();
+        assume(recovery._fn).to.equal(null);
 
         next();
       });
 
-      emitter.on('reconnect', function (opts) {
+      recovery.on('reconnect', function (opts) {
         if (opts.attempt === 1) return setTimeout(function () {
-          recovery.failed(new Error('Nope, we failed'));
+          recovery.reconnected(new Error('Nope, we failed'));
         }, 50);
 
         setTimeout(function () {
-          recovery.success();
+          recovery.reconnected();
         }, 50);
       });
 
@@ -197,28 +149,26 @@ describe('recovery', function () {
       recovery.reconnect();
     });
 
-    it('can use the .success and .failed APIs', function (next) {
+    it('can use the .reconnected API', function (next) {
       var start = Date.now();
 
-      emitter.on('reconnected', function (opts) {
+      recovery.on('reconnected', function (opts) {
         assume(opts.attempt).equals(2);
         assume(opts.duration).to.most(Date.now() - start);
         assume(opts.duration).to.least((Date.now() - start) - 10);
 
-        assume(recovery.fn).to.equal(null);
-        assume(recovery.failed()).is.false();
-        assume(recovery.success()).is.false();
+        assume(recovery._fn).to.equal(null);
 
         next();
       });
 
-      emitter.on('reconnect', function (opts) {
+      recovery.on('reconnect', function (opts) {
         if (opts.attempt === 1) return setTimeout(function () {
-          assume(recovery.failed()).is.true();
+          recovery.reconnected(new Error('Shit broke'));
         }, 50);
 
         setTimeout(function () {
-          assume(recovery.success()).is.true();
+          recovery.reconnected();
         }, 50);
       });
 
@@ -229,15 +179,15 @@ describe('recovery', function () {
     it('doesnt allow another reconnection attempt while busy', function (next) {
       var attempts = 0;
 
-      emitter.on('reconnect', function () {
-        recovery.success();
+      recovery.on('reconnect', function () {
+        recovery.reconnected();
       });
 
-      emitter.on('reconnected', function () {
+      recovery.on('reconnected', function () {
         next();
       });
 
-      emitter.on('reconnecting', function (fn, opts) {
+      recovery.on('reconnect scheduled', function (fn, opts) {
         attempts++;
 
         if (attempts > 1) throw new Error('I should only reconnect once');
@@ -272,42 +222,30 @@ describe('recovery', function () {
     });
   });
 
-  describe('#active', function () {
+  describe('#reconnecting', function () {
     it('returns a boolean', function (next) {
-      assume(recovery.active()).is.false();
+      assume(recovery.reconnecting()).is.false();
 
-      emitter.on('reconnected', function (opts) {
-        assume(recovery.active()).is.false();
+      recovery.on('reconnected', function (opts) {
+        assume(recovery.reconnecting()).is.false();
         next();
       });
 
-      emitter.on('reconnecting', function () {
-        assume(recovery.active()).is.true();
+      recovery.on('reconnect scheduled', function () {
+        assume(recovery.reconnecting()).is.true();
       });
 
-      emitter.on('reconnect', function (opts) {
-        assume(recovery.active()).is.true();
+      recovery.on('reconnect', function (opts) {
+        assume(recovery.reconnecting()).is.true();
 
         setTimeout(function () {
-         recovery.success();
+         recovery.reconnected();
         }, 50);
       });
 
       recovery.timeout = 100;
       recovery.reconnect();
-      assume(recovery.active()).is.true();
-    });
-  });
-
-  describe('#destroy', function () {
-    it('returns true for the first time', function () {
-      assume(recovery.destroy()).is.true();
-    });
-
-    it('returns false for the second call', function () {
-      assume(recovery.destroy()).is.true();
-      assume(recovery.destroy()).is.false();
-      assume(recovery.destroy()).is.false();
+      assume(recovery.reconnecting()).is.true();
     });
   });
 });

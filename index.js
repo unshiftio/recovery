@@ -1,56 +1,58 @@
 'use strict';
 
-var millisecond = require('millisecond')
+var EventEmitter = require('eventemitter3')
+  , millisecond = require('millisecond')
   , Tick = require('tick-tock')
   , one = require('one-time');
+
+/**
+ * Returns sane defaults about a given value.
+ *
+ * @param {String} name Name of property we want.
+ * @param {Recovery} selfie Recovery instance that got created.
+ * @param {Object} opts User supplied options we want to check.
+ * @returns {Number} Some default value.
+ * @api private
+ */
+function defaults(name, selfie, opts) {
+  return millisecond(
+    name in opts ? opts[name] : (name in selfie ? selfie[name] : Recovery[name])
+  );
+}
 
 /**
  * Attempt to recover your connection with reconnection attempt.
  *
  * @constructor
- * @param {EventEmitter} eventemitter EventEmitter where we emit our events on.
  * @param {Object} options Configuration
  * @api public
  */
-function Recovery(eventemitter, options) {
-  if (!(this instanceof Recovery)) return new Recovery(eventemitter, options);
+function Recovery(options) {
+  var recovery = this;
+
+  if (!(recovery instanceof Recovery)) return new Recovery(options);
+
   options = options || {};
 
-  this.fn = null;             // Stores the callback.
-  this.attempt = null;        // Stores the current reconnect attempt.
-  this.events = eventemitter;
+  recovery.attempt = null;        // Stores the current reconnect attempt.
+  recovery._fn = null;            // Stores the callback.
 
-  this.max = this.default('max', options);
-  this.min = this.default('min', options);
-  this.factor = this.default('factor', options);
-  this.retries = this.default('retries', options);
-  this.timeout = this.default('timeout', options);
-
-  Tick.call(this);
+  recovery.timers = new Tick(recovery);
+  recovery.max = defaults('max', recovery, options);
+  recovery.min = defaults('min', recovery, options);
+  recovery.factor = defaults('factor', recovery, options);
+  recovery.retries = defaults('retries', recovery, options);
+  recovery.timeout = defaults('timeout', recovery, options);
 }
 
-Recovery.prototype = new Tick();
+Recovery.prototype = new EventEmitter();
 Recovery.prototype.constructor = Recovery;
 
+Recovery.timeout = '30 seconds';  // Maximum timeout for the request to answer.
 Recovery.max = Infinity;          // Maximum delay.
 Recovery.min = '500 ms';          // Minimum delay.
 Recovery.retries = 10;            // Maximum amount of retries.
 Recovery.factor = 2;              // Exponential back off factor.
-Recovery.timeout = '30 seconds';  // Maximum timeout for the request to answer.
-
-/**
- * Returns sane defaults about a given value.
- *
- * @param {String} name Name of property we want>
- * @param {Object} opts User supplied options we want to check.
- * @returns {Number} Some default value.
- * @api private
- */
-Recovery.prototype.default = function defaults(name, opts) {
-  return millisecond(
-    name in opts ? opts[name] : (name in this ? this[name] : Recovery[name])
-  );
-};
 
 /**
  * Start a new reconnect procedure.
@@ -61,44 +63,13 @@ Recovery.prototype.default = function defaults(name, opts) {
 Recovery.prototype.reconnect = function reconnect() {
   var recovery = this;
 
-  return this.backoff(function backedoff(err, opts) {
+  return recovery.backoff(function backedoff(err, opts) {
     opts.duration = (+new Date()) - opts.start;
     recovery.reset();
 
-    if (err) return recovery.events.emit('reconnect failed', err, opts);
-    recovery.events.emit('reconnected', opts);
-  }, this.attempt);
-};
-
-/**
- * Reconnecting failed. Start over again.
- *
- * @param {Error} err Optional error message.
- * @returns {Boolean} Successfully notified of failure.
- * @api public
- */
-Recovery.prototype.failed = function failed(err) {
-  if ('function' === typeof this.fn) {
-    this.fn(err || new Error('Failed to reconnect'));
-    return true;
-  }
-
-  return false;
-};
-
-/**
- * Successful reconnect. Clean up things.
- *
- * @returns {Boolean} Successfully notified of success.
- * @api public
- */
-Recovery.prototype.success = function success() {
-  if ('function' === typeof this.fn) {
-    this.fn();
-    return true;
-  }
-
-  return false;
+    if (err) return recovery.emit('reconnect failed', err, opts);
+    recovery.emit('reconnected', opts);
+  }, recovery.attempt);
 };
 
 /**
@@ -121,11 +92,11 @@ Recovery.prototype.backoff = function backoff(fn, opts) {
   //
   if (opts.backoff) return recovery;
 
-  opts.max = recovery.default('max', opts);
-  opts.min = recovery.default('min', opts);
-  opts.factor = recovery.default('factor', opts);
-  opts.retries = recovery.default('retries', opts);
-  opts.timeout = recovery.default('timeout', opts);
+  opts.max = defaults('max', recovery, opts);
+  opts.min = defaults('min', recovery, opts);
+  opts.factor = defaults('factor', recovery, opts);
+  opts.retries = defaults('retries', recovery, opts);
+  opts.timeout = defaults('timeout', recovery, opts);
 
   opts.start = +opts.start || +new Date();
   opts.duration = +opts.duration || 0;
@@ -162,31 +133,31 @@ Recovery.prototype.backoff = function backoff(fn, opts) {
       ), opts.max)
     : opts.min;
 
-  recovery.setTimeout('reconnect', function delay() {
+  recovery.timers.setTimeout('reconnect', function delay() {
     opts.duration = (+new Date()) - opts.start;
     opts.backoff = false;
-    recovery.clear();
+    recovery.timers.clear();
 
     //
     // Create a `one` function which can only be called once. So we can use the
     // same function for different types of invocations to create a much better
     // and usable API.
     //
-    var connect = recovery.fn = one(function connect(err) {
+    var connect = recovery._fn = one(function connect(err) {
       if (err) {
-        recovery.clear();
+        recovery.timers.clear();
         return recovery.backoff(fn, opts);
       }
 
       fn.call(recovery, undefined, opts);
     });
 
-    recovery.events.emit('reconnect', opts);
-    recovery.setTimeout('timeout', function timeout() {
+    recovery.emit('reconnect', opts);
+    recovery.timers.setTimeout('timeout', function timeout() {
       var err = new Error('Failed to reconnect in a timely manner');
       opts.duration = (+new Date()) - opts.start;
 
-      recovery.events.emit('reconnect timeout', err, opts);
+      recovery.emit('reconnect timeout', err, opts);
       connect(err);
     }, opts.timeout);
   }, opts.scheduled);
@@ -195,44 +166,44 @@ Recovery.prototype.backoff = function backoff(fn, opts) {
   // Emit a `reconnecting` event with current reconnect options. This allows
   // them to update the UI and provide their users with feedback.
   //
-  recovery.events.emit('reconnecting', opts);
+  recovery.emit('reconnect scheduled', opts);
 
   return recovery;
 };
 
 /**
- * Reset the reconnection attempt so it can be re-used again.
- *
- * @api public
- */
-Recovery.prototype.reset = function reset() {
-  this.fn = this.attempt = null;
-  return this.clear();
-};
-
-/**
- * Destroy the recovery instance and leave no traces around.
- *
- * @returns {Boolean} Successful destruction
- * @api public
- */
-Recovery.prototype.end = Recovery.prototype.destroy = function destroy() {
-  if (!this.events) return false;
-
-  this.reset();
-  this.events = null;
-
-  return true;
-};
-
-/**
- * Check if the reconnection process is currently active.
+ * Check if the reconnection process is currently reconnecting.
  *
  * @returns {Boolean}
  * @api public
  */
-Recovery.prototype.active = function active() {
+Recovery.prototype.reconnecting = function reconnecting() {
   return !!this.attempt;
+};
+
+/**
+ * Tell our reconnection procedure that we're passed.
+ *
+ * @param {Error} err Reconnection failed.
+ * @returns {Recovery}
+ * @api public
+ */
+Recovery.prototype.reconnected = function reconnected(err) {
+  if (this._fn) this._fn(err);
+  return this;
+};
+
+/**
+ * Reset the reconnection attempt so it can be re-used again.
+ *
+ * @returns {Recovery}
+ * @api public
+ */
+Recovery.prototype.reset = function reset() {
+  this._fn = this.attempt = null;
+  this.timers.clear();
+
+  return this;
 };
 
 //

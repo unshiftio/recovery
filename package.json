@@ -32,6 +32,7 @@
     "pre-commit": "0.0.x"
   },
   "dependencies": {
+    "eventemitter3": "0.1.6",
     "millisecond": "0.0.x",
     "one-time": "0.0.x",
     "tick-tock": "0.0.x"
