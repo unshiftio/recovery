@@ -248,4 +248,21 @@ describe('recovery', function () {
       assume(recovery.reconnecting()).is.true();
     });
   });
+
+  describe('#reset', function () {
+    it('only removes our assigned listeners', function (next) {
+      recovery.timers.setTimeout('next', next, 25);
+      recovery.reconnect();
+
+      setTimeout(function () {
+        recovery.reset();
+        assume(recovery._fn).equals(null);
+        assume(recovery.attempt).equals(null);
+
+        assume(recovery.timers.active('reconnect')).is.false();
+        assume(recovery.timers.active('timeout')).is.false();
+        assume(recovery.timers.active('next')).is.true();
+      }, 0);
+    });
+  });
 });

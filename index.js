@@ -136,7 +136,7 @@ Recovery.prototype.backoff = function backoff(fn, opts) {
   recovery.timers.setTimeout('reconnect', function delay() {
     opts.duration = (+new Date()) - opts.start;
     opts.backoff = false;
-    recovery.timers.clear();
+    recovery.timers.clear('reconnect, timeout');
 
     //
     // Create a `one` function which can only be called once. So we can use the
@@ -145,7 +145,7 @@ Recovery.prototype.backoff = function backoff(fn, opts) {
     //
     var connect = recovery._fn = one(function connect(err) {
       if (err) {
-        recovery.timers.clear();
+        recovery.timers.clear('reconnect, timeout');
         return recovery.backoff(fn, opts);
       }
 
@@ -201,7 +201,7 @@ Recovery.prototype.reconnected = function reconnected(err) {
  */
 Recovery.prototype.reset = function reset() {
   this._fn = this.attempt = null;
-  this.timers.clear();
+  this.timers.clear('reconnect, timeout');
 
   return this;
 };
