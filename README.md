@@ -29,8 +29,8 @@ npm install --save recovery
 
 As mentioned in the documentation introduction, this library provides various of
 reconnection and progress events. Events **always** receive a "status" or
-progress object as last argument. This progress object contains useful
-information about current reconnection progress:
+progress object as last argument. This object contains useful information about
+current reconnection progress:
 
 - `attempt`:  Which reconnection attempt are we currently processing.
 - `start`: Starting time of reconnection attempt.
@@ -42,15 +42,15 @@ In addition to these values it also contains all the configuration options like
 
 The following events are emitted during the recovery process:
 
-Event               | Arguments   | Description
---------------------|-------------|-----------------------------------------------------
-`reconnecting`      | status      | Scheduled a new reconnection attempt.
-`reconnect`         | fn, status  | It's time for you to reconnect to the server.
-`reconnected`       | status      | Successfully reconnected.
-`reconnect failed`  | err, status | Failed to reconnect and ran out of attempts.
-`reconnect timeout` | err, status | Failed to reconnect in a timely manner, will retry.
+Event                 | Arguments   | Description
+----------------------|-------------|-----------------------------------------------------
+`reconnect scheduled` | status      | Scheduled a new reconnection attempt.
+`reconnect`           | status, fn  | It's time for you to reconnect to the server.
+`reconnected`         | status      | Successfully reconnected.
+`reconnect failed`    | err, status | Failed to reconnect and ran out of attempts.
+`reconnect timeout`   | err, status | Failed to reconnect in a timely manner, will retry.
 
-## Usage
+## Constructing
 
 In all code examples we assume that you've loaded the library using:
 
@@ -60,17 +60,9 @@ In all code examples we assume that you've loaded the library using:
 var Recovery = require('recovery');
 ```
 
-To create a new instance of recovery you can supply 2 arguments:
-
-1. Reference to an event listener where we can emit the events on.
-2. Optional configuration for the reconnection procedure.
-
-```js
-var recovery = new Recovery(eventemitter, {})
-```
-
-To make the reconnection process as flexible as possible you can supply us with
-a couple of options:
+To create a new instance of recovery you can supply 1 optional argument which
+are the options which allows you to configure how the reconnection procedure
+works. The following options are accepted:
 
 - `max` Maximum reconnection delay. Defaults to `Infinity`.
 - `min` Minimum reconnection delay. Defaults to `500 ms`.
@@ -83,10 +75,10 @@ a couple of options:
 
 Options that indicate a time can either be set using a human readable string
 like `10 seconds`, `1 day`, `10 ms` etc. or a numeric value which represents the
-time in milliseconds. 
+time in milliseconds.
 
 ```js
-var recovery = new Recovery(emitter, {
+var recovery = new Recovery({
   max: '30 seconds',
   min: '100 milliseconds',
   retries: 5
@@ -101,25 +93,50 @@ we will start our reconnection timeout so you have only a short while to
 actually attempt a reconnection again. In a case of a timeout we emit
 a `reconnect timeout` event and schedule another attempt.
 
-If you've reconnection attempt is successful call the `reconnect.success()`
-method. If it failed you can call the `reconnect.failed()` method. If the
-operation failed we will automatically schedule a new reconnect attempt. When
-it's successful we will do some small internal clean up and emit the
-`reconnected` event. If all future attempts fail we will eventually emit the
+If you've reconnection attempt is successful call the `reconnect.reconnected()`
+method without any arguments. If it failed you can call the method with an error
+argument. If the operation failed we will automatically schedule a new reconnect
+attempt. When it's successful we will do some small internal clean up and emit
+the `reconnected` event. If all future attempts fail we will eventually emit the
 `reconnect failed` event which basically indicates that something horrible is
 going on.
 
 ```js
-emitter.on('reconnect', function () {
-  reconnectmyconnection(function (err) {
-    if (err) return reconnect.failed(err);
+recovery = new Recovery();
 
-    reconnect.success();
+recovery.on('reconnect', function (opts) {
+  console.log()
+
+  reconnectmyconnection(function (err) {
+    if (err) return reconnect.reconnected(err);
+    reconnect.reconnected();
   });
 });
 
-reconnect = new Recovery(emitter);
-reconnect.reconnect();
+recovery.reconnect();
+```
+
+Alternatively you also call the callback which is provided in the `reconnect`
+event which is the same as the `reconnected` method.
+
+```js
+recovery.on('reconnect', function (opts, fn) {
+  reconnect(fn);
+});
+```
+
+To check if a running reconnection attempt you can call the `reconnecting`
+method which will return a boolean:
+
+```js
+if (!recovery.reconnecting()) recovery.reconnect();
+```
+
+And if you wish to cancel the running reconnection attempt you can call the
+`reset` method:
+
+```js
+if (recovery.reconnecting()) recovery.reset();
 ```
 
 ## License
