@@ -3,11 +3,11 @@
 [![Made by unshift][made-by]](http://unshift.io)[![Version npm][version]](http://browsenpm.org/package/recovery)[![Build Status][build]](https://travis-ci.org/unshiftio/recovery)[![Dependencies][david]](https://david-dm.org/unshiftio/recovery)[![Coverage Status][cover]](https://coveralls.io/r/unshiftio/recovery?branch=master)[![IRC channel][irc]](http://webchat.freenode.net/?channels=unshift)
 
 [made-by]: https://img.shields.io/badge/made%20by-unshift-00ffcc.svg?style=flat-square
-[version]: http://img.shields.io/npm/v/recovery.svg?style=flat-square
-[build]: http://img.shields.io/travis/unshiftio/recovery/master.svg?style=flat-square
+[version]: https://img.shields.io/npm/v/recovery.svg?style=flat-square
+[build]: https://img.shields.io/travis/unshiftio/recovery/master.svg?style=flat-square
 [david]: https://img.shields.io/david/unshiftio/recovery.svg?style=flat-square
-[cover]: http://img.shields.io/coveralls/unshiftio/recovery/master.svg?style=flat-square
-[irc]: http://img.shields.io/badge/IRC-irc.freenode.net%23unshift-00a8ff.svg?style=flat-square
+[cover]: https://img.shields.io/coveralls/unshiftio/recovery/master.svg?style=flat-square
+[irc]: https://img.shields.io/badge/IRC-irc.freenode.net%23unshift-00a8ff.svg?style=flat-square
 
 Recovery provides randomized exponential back off for reconnection attempts. It
 allows you to recover the connection in the most optimal way (for both server
