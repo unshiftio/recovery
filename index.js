@@ -65,9 +65,9 @@ Recovery.prototype.reconnect = function reconnect() {
 
   return recovery.backoff(function backedoff(err, opts) {
     opts.duration = (+new Date()) - opts.start;
-    recovery.reset();
 
     if (err) return recovery.emit('reconnect failed', err, opts);
+
     recovery.emit('reconnected', opts);
   }, recovery.attempt);
 };
@@ -144,15 +144,14 @@ Recovery.prototype.backoff = function backoff(fn, opts) {
     // and usable API.
     //
     var connect = recovery._fn = one(function connect(err) {
-      if (err) {
-        recovery.timers.clear('reconnect, timeout');
-        return recovery.backoff(fn, opts);
-      }
+      recovery.reset();
+
+      if (err) return recovery.backoff(fn, opts);
 
       fn.call(recovery, undefined, opts);
     });
 
-    recovery.emit('reconnect', opts);
+    recovery.emit('reconnect', opts, connect);
     recovery.timers.setTimeout('timeout', function timeout() {
       var err = new Error('Failed to reconnect in a timely manner');
       opts.duration = (+new Date()) - opts.start;
