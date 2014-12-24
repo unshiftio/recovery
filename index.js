@@ -42,7 +42,7 @@ function Recovery(options) {
   recovery.min = defaults('min', recovery, options);
   recovery.factor = defaults('factor', recovery, options);
   recovery.retries = defaults('retries', recovery, options);
-  recovery.timeout = defaults('timeout', recovery, options);
+  recovery.timeout = defaults('reconnect timeout', recovery, options);
 }
 
 Recovery.prototype = new EventEmitter();

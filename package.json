@@ -1,6 +1,6 @@
 {
   "name": "recovery",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Recover from a network failure using randomized exponential backoff",
   "main": "index.js",
   "scripts": {
