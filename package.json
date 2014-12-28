@@ -1,6 +1,6 @@
 {
   "name": "recovery",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "Recover from a network failure using randomized exponential backoff",
   "main": "index.js",
   "scripts": {
@@ -32,6 +32,7 @@
     "pre-commit": "0.0.x"
   },
   "dependencies": {
+    "demolish": "1.0.x",
     "eventemitter3": "0.1.x",
     "millisecond": "0.0.x",
     "one-time": "0.0.x",
