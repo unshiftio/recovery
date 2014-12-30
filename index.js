@@ -38,22 +38,22 @@ function Recovery(options) {
   recovery.attempt = null;        // Stores the current reconnect attempt.
   recovery._fn = null;            // Stores the callback.
 
-  recovery.timers = new Tick(recovery);
+  recovery['reconnect timeout'] = defaults('reconnect timeout', recovery, options);
+  recovery.retries = defaults('retries', recovery, options);
+  recovery.factor = defaults('factor', recovery, options);
   recovery.max = defaults('max', recovery, options);
   recovery.min = defaults('min', recovery, options);
-  recovery.factor = defaults('factor', recovery, options);
-  recovery.retries = defaults('retries', recovery, options);
-  recovery.timeout = defaults('reconnect timeout', recovery, options);
+  recovery.timers = new Tick(recovery);
 }
 
 Recovery.prototype = new EventEmitter();
 Recovery.prototype.constructor = Recovery;
 
-Recovery.timeout = '30 seconds';  // Maximum timeout for the request to answer.
-Recovery.max = Infinity;          // Maximum delay.
-Recovery.min = '500 ms';          // Minimum delay.
-Recovery.retries = 10;            // Maximum amount of retries.
-Recovery.factor = 2;              // Exponential back off factor.
+Recovery['reconnect timeout'] = '30 seconds';  // Maximum time to wait for an answer.
+Recovery.max = Infinity;                       // Maximum delay.
+Recovery.min = '500 ms';                       // Minimum delay.
+Recovery.retries = 10;                         // Maximum amount of retries.
+Recovery.factor = 2;                           // Exponential back off factor.
 
 /**
  * Start a new reconnect procedure.
@@ -74,7 +74,7 @@ Recovery.prototype.reconnect = function reconnect() {
 };
 
 /**
- * Exponential back off algorithm for retry operations. It uses an randomized
+ * Exponential back off algorithm for retry operations. It uses a randomized
  * retry so we don't DDOS our server when it goes down under pressure.
  *
  * @param {Function} fn Callback to be called after the timeout.
@@ -93,19 +93,18 @@ Recovery.prototype.backoff = function backoff(fn, opts) {
   //
   if (opts.backoff) return recovery;
 
+  opts['reconnect timeout'] = defaults('reconnect timeout', recovery, opts);
+  opts.retries = defaults('retries', recovery, opts);
+  opts.factor = defaults('factor', recovery, opts);
   opts.max = defaults('max', recovery, opts);
   opts.min = defaults('min', recovery, opts);
-  opts.factor = defaults('factor', recovery, opts);
-  opts.retries = defaults('retries', recovery, opts);
-  opts.timeout = defaults('timeout', recovery, opts);
 
   opts.start = +opts.start || +new Date();
   opts.duration = +opts.duration || 0;
   opts.attempt = +opts.attempt || 0;
 
   //
-  // Bailout if we are about to make to much attempts. Please note that we use
-  // `>` because we already incremented the value above.
+  // Bailout if we are about to make too much attempts.
   //
   if (opts.attempt === opts.retries) {
     fn.call(recovery, new Error('Unable to recover'), opts);
@@ -159,7 +158,7 @@ Recovery.prototype.backoff = function backoff(fn, opts) {
 
       recovery.emit('reconnect timeout', err, opts);
       connect(err);
-    }, opts.timeout);
+    }, opts['reconnect timeout']);
   }, opts.scheduled);
 
   //
@@ -207,7 +206,7 @@ Recovery.prototype.reset = function reset() {
 };
 
 /**
- * Added a missing destroy method to fully clean up the instance.
+ * Clean up the instance.
  *
  * @type {Function}
  * @returns {Boolean}

@@ -2,8 +2,7 @@
 describe('recovery', function () {
   'use strict';
 
-  var Tick = require('tick-tock')
-    , assume = require('assume')
+  var assume = require('assume')
     , Recovery = require('./')
     , recovery;
 
@@ -75,7 +74,7 @@ describe('recovery', function () {
         next();
       });
 
-      recovery.timeout = 100;
+      recovery['reconnect timeout'] = 100;
       recovery.reconnect();
     });
 
@@ -117,7 +116,7 @@ describe('recovery', function () {
         next();
       });
 
-      recovery.timeout = 100;
+      recovery['reconnect timeout'] = 100;
       recovery.max = 2000;
       recovery.reconnect();
     });
@@ -145,7 +144,7 @@ describe('recovery', function () {
         }, 50);
       });
 
-      recovery.timeout = 100;
+      recovery['reconnect timeout'] = 100;
       recovery.reconnect();
     });
 
@@ -172,7 +171,7 @@ describe('recovery', function () {
         }, 50);
       });
 
-      recovery.timeout = 100;
+      recovery['reconnect timeout'] = 100;
       recovery.reconnect();
     });
 
@@ -193,7 +192,7 @@ describe('recovery', function () {
         if (attempts > 1) throw new Error('I should only reconnect once');
       });
 
-      recovery.timeout = 100;
+      recovery['reconnect timeout'] = 100;
       recovery.reconnect();
       recovery.reconnect();
       recovery.reconnect();
@@ -243,7 +242,7 @@ describe('recovery', function () {
         }, 50);
       });
 
-      recovery.timeout = 100;
+      recovery['reconnect timeout'] = 100;
       recovery.reconnect();
       assume(recovery.reconnecting()).is.true();
     });
