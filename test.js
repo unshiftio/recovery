@@ -175,6 +175,14 @@ describe('recovery', function () {
       recovery.reconnect();
     });
 
+    it('can call the reconnected API when no attempt is running', function () {
+      recovery.on('reconnected', function () {
+        throw new Error('I should not be triggered');
+      });
+
+      recovery.reconnected();
+    });
+
     it('doesnt allow another reconnection attempt while busy', function (next) {
       var attempts = 0;
 

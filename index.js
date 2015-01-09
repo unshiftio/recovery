@@ -2,7 +2,7 @@
 
 var EventEmitter = require('eventemitter3')
   , millisecond = require('millisecond')
-  , demolish = require('demolish')
+  , destroy = require('demolish')
   , Tick = require('tick-tock')
   , one = require('one-time');
 
@@ -212,7 +212,7 @@ Recovery.prototype.reset = function reset() {
  * @returns {Boolean}
  * @api public
  */
-Recovery.prototype.destroy = demolish('timers attempt _fn');
+Recovery.prototype.destroy = destroy('timers attempt _fn');
 
 //
 // Expose the module.

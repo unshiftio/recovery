@@ -4,6 +4,7 @@
   "description": "Recover from a network failure using randomized exponential backoff",
   "main": "index.js",
   "scripts": {
+    "100%": "istanbul check-coverage --statements 100 --functions 100 --lines 100 --branches 100",
     "test": "mocha test.js",
     "watch": "mocha --watch test.js",
     "coverage": "istanbul cover ./node_modules/.bin/_mocha -- test.js",
@@ -41,5 +42,6 @@
   "repository": {
     "type": "git",
     "url": "https://github.com/unshiftio/recovery"
-  }
+  },
+  "pre-commit": ["coverage", "100%"]
 }
