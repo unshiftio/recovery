@@ -71,17 +71,17 @@ In all code examples we assume that you've loaded the library using:
 var Recovery = require('recovery');
 ```
 
-To create a new instance of recovery you can supply 1 optional argument which
-are the options which allows you to configure how the reconnection procedure
-works. The following options are accepted:
+The module is exported as a constructor. The constructor accepts an optional
+options object which allows you to configure the reconnection procedure.
+The following options are accepted:
 
 - `max` Maximum reconnection delay. Defaults to `Infinity`.
 - `min` Minimum reconnection delay. Defaults to `500 ms`.
-- `retries` Maximum amount retries after this we will emit an `reconnect failed` 
+- `retries` Maximum amount retries after this we will emit an `reconnect failed`
   event. Defaults to `10`.
-- `timeout` Time you have to reconnect to the server. It takes longer then the
-  specified value we will emit an `reconnect timeout` event and schedule another
-  reconnection attempt. Defaults to `30 seconds`.
+- `reconnect timeout` Time you have to reconnect to the server. If it takes
+  longer than the specified value we will emit an `reconnect timeout` event and
+  schedule another reconnection attempt. Defaults to `30 seconds`.
 - `factor` Exponential back off factor. Defaults to `2`.
 
 Options that indicate a time can either be set using a human readable string
@@ -98,13 +98,13 @@ var recovery = new Recovery({
 
 ### Reconnecting
 
-To know when you've got to reconnect we emit the `reconnect` event. You can
-listen to these event on your assigned event emitter. After the event is emitted
-we will start our reconnection timeout so you have only a short while to
-actually attempt a reconnection again. In a case of a timeout we emit
-a `reconnect timeout` event and schedule another attempt.
+Before every reconnection attempt we emit a `reconnect` event. You can listen
+to this event on your assigned event emitter. After the event is emitted
+we will start a timeout so your attempts have only a limited amount of time to
+succeed or fail. If the timeout expires we emit a `reconnect timeout` event and
+start a whole new reconnection procedure.
 
-If you've reconnection attempt is successful call the `reconnect.reconnected()`
+If your reconnection attempt is successful call the `reconnect.reconnected()`
 method without any arguments. If it failed you can call the method with an error
 argument. If the operation failed we will automatically schedule a new reconnect
 attempt. When it's successful we will do some small internal clean up and emit
@@ -116,7 +116,7 @@ going on.
 recovery = new Recovery();
 
 recovery.on('reconnect', function (opts) {
-  console.log()
+  console.log(opts.attempt);
 
   reconnectmyconnection(function (err) {
     if (err) return reconnect.reconnected(err);
@@ -132,12 +132,12 @@ event which is the same as the `reconnected` method.
 
 ```js
 recovery.on('reconnect', function (opts, fn) {
-  reconnect(fn);
+  reconnectmyconnection(fn);
 });
 ```
 
-To check if a running reconnection attempt you can call the `reconnecting`
-method which will return a boolean:
+To check if a reconnection attempt is already running you can call the
+`reconnecting` method which will return a boolean:
 
 ```js
 if (!recovery.reconnecting()) recovery.reconnect();
