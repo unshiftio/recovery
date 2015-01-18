@@ -129,7 +129,7 @@ Recovery.prototype.backoff = function backoff(fn, opts) {
   //
   opts.scheduled = opts.attempt !== 1
     ? Math.min(Math.round(
-        (Math.random() + 1) * opts.min * Math.pow(opts.factor, opts.attempt)
+        (Math.random() + 1) * opts.min * Math.pow(opts.factor, opts.attempt - 1)
       ), opts.max)
     : opts.min;
 
