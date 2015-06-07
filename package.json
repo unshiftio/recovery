@@ -34,7 +34,7 @@
   },
   "dependencies": {
     "demolish": "1.0.x",
-    "eventemitter3": "0.1.x",
+    "eventemitter3": "1.1.x",
     "millisecond": "0.0.x",
     "one-time": "0.0.x",
     "tick-tock": "0.1.x"
