@@ -79,10 +79,12 @@ describe('recovery', function () {
     });
 
     it('emits `reconnect failed` when all attempts failed', function (next) {
-      var attempts = 0
-        , start = Date.now();
+      var start = +new Date()
+        , attempts = 0;
 
       recovery.on('reconnect scheduled', function (opts) {
+        var elapsed = +new Date() - start;
+
         attempts++;
 
         assume(opts.attempt).to.equal(attempts);
@@ -94,8 +96,8 @@ describe('recovery', function () {
 
         if (attempts === 1) return;
 
-        assume(opts.duration).to.most(Date.now() - start);
-        assume(opts.duration).to.least((Date.now() - start) - 10);
+        assume(opts.duration).is.lte(elapsed);
+        assume(opts.duration).is.gte(elapsed - 20);
       });
 
       recovery.on('reconnect timeout', function (err, opts) {
@@ -103,13 +105,15 @@ describe('recovery', function () {
       });
 
       recovery.on('reconnect failed', function (err, opts) {
+        var elapsed = +new Date() - start;
+
         assume(err).is.a('error');
         assume(err.message).contains('recover');
 
         assume(opts.attempt).to.equal(recovery.retries);
         assume(opts.attempt).to.equal(opts.retries);
-        assume(opts.duration).to.most(Date.now() - start);
-        assume(opts.duration).to.least((Date.now() - start) - 10);
+        assume(opts.duration).is.lte(elapsed);
+        assume(opts.duration).is.gte(elapsed - 20);
 
         assume(recovery._fn).to.equal(null);
 
@@ -122,12 +126,14 @@ describe('recovery', function () {
     });
 
     it('emits a `reconnected` event for a successful connection', function (next) {
-      var start = Date.now();
+      var start = +new Date();
 
       recovery.on('reconnected', function (opts) {
+        var elapsed = +new Date() - start;
+
         assume(opts.attempt).equals(2);
-        assume(opts.duration).to.most(Date.now() - start);
-        assume(opts.duration).to.least((Date.now() - start) - 10);
+        assume(opts.duration).is.lte(elapsed);
+        assume(opts.duration).is.gte(elapsed - 20);
 
         assume(recovery._fn).to.equal(null);
 
@@ -149,12 +155,14 @@ describe('recovery', function () {
     });
 
     it('can use the .reconnected API', function (next) {
-      var start = Date.now();
+      var start = +new Date();
 
       recovery.on('reconnected', function (opts) {
+        var elapsed = +new Date() - start;
+
         assume(opts.attempt).equals(2);
-        assume(opts.duration).to.most(Date.now() - start);
-        assume(opts.duration).to.least((Date.now() - start) - 10);
+        assume(opts.duration).is.lte(elapsed);
+        assume(opts.duration).is.gte(elapsed - 20);
 
         assume(recovery._fn).to.equal(null);
 
@@ -194,7 +202,7 @@ describe('recovery', function () {
         next();
       });
 
-      recovery.on('reconnect scheduled', function (fn, opts) {
+      recovery.on('reconnect scheduled', function () {
         attempts++;
 
         if (attempts > 1) throw new Error('I should only reconnect once');
@@ -231,28 +239,28 @@ describe('recovery', function () {
 
   describe('#reconnecting', function () {
     it('returns a boolean', function (next) {
-      assume(recovery.reconnecting()).is.false();
+      assume(recovery.reconnecting()).equals(false);
 
-      recovery.on('reconnected', function (opts) {
-        assume(recovery.reconnecting()).is.false();
+      recovery.on('reconnected', function () {
+        assume(recovery.reconnecting()).equals(false);
         next();
       });
 
       recovery.on('reconnect scheduled', function () {
-        assume(recovery.reconnecting()).is.true();
+        assume(recovery.reconnecting()).equals(true);
       });
 
-      recovery.on('reconnect', function (opts) {
-        assume(recovery.reconnecting()).is.true();
+      recovery.on('reconnect', function () {
+        assume(recovery.reconnecting()).equals(true);
 
         setTimeout(function () {
-         recovery.reconnected();
+          recovery.reconnected();
         }, 50);
       });
 
       recovery['reconnect timeout'] = 100;
       recovery.reconnect();
-      assume(recovery.reconnecting()).is.true();
+      assume(recovery.reconnecting()).equals(true);
     });
   });
 
@@ -266,9 +274,9 @@ describe('recovery', function () {
         assume(recovery._fn).equals(null);
         assume(recovery.attempt).equals(null);
 
-        assume(recovery.timers.active('reconnect')).is.false();
-        assume(recovery.timers.active('timeout')).is.false();
-        assume(recovery.timers.active('next')).is.true();
+        assume(recovery.timers.active('reconnect')).equals(false);
+        assume(recovery.timers.active('timeout')).equals(false);
+        assume(recovery.timers.active('next')).equals(true);
       }, 0);
     });
   });
