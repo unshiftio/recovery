@@ -5,10 +5,11 @@
   "main": "index.js",
   "scripts": {
     "100%": "istanbul check-coverage --statements 100 --functions 100 --lines 100 --branches 100",
-    "test": "mocha test.js",
-    "watch": "mocha --watch test.js",
+    "test-node": "istanbul cover _mocha --report lcovonly -- test.js",
     "coverage": "istanbul cover _mocha -- test.js",
-    "test-travis": "istanbul cover _mocha --report lcovonly -- test.js"
+    "test-browser": "zuul -- test.js",
+    "watch": "mocha --watch test.js",
+    "test": "mocha test.js"
   },
   "keywords": [
     "random",
@@ -30,7 +31,8 @@
     "assume": "1.2.x",
     "istanbul": "0.3.x",
     "mocha": "2.2.x",
-    "pre-commit": "1.1.x"
+    "pre-commit": "1.1.x",
+    "zuul": "3.9.x"
   },
   "dependencies": {
     "demolish": "1.0.x",
@@ -41,7 +43,10 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/unshiftio/recovery"
+    "url": "https://github.com/unshiftio/recovery.git"
   },
-  "pre-commit": ["coverage", "100%"]
+  "pre-commit": [
+    "coverage",
+    "100%"
+  ]
 }

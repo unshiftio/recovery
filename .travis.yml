@@ -1,17 +1,30 @@
+sudo: false
 language: node_js
-node_js:
-  - "0.12"
-  - "0.10"
-  - "0.8"
-  - "iojs"
-before_install:
-  - "npm install -g npm@1.4.x"
-script:
-  - "npm run test-travis"
-after_script:
-  - "npm install coveralls@2.11.x && cat coverage/lcov.info | coveralls"
 matrix:
   fast_finish: true
+  include:
+    - node_js: "0.8"
+      env: TASK=test-node
+    - node_js: "0.10"
+      env: TASK=test-node
+    - node_js: "0.12"
+      env: TASK=test-node
+    - node_js: "iojs"
+      env: TASK=test-node
+    - node_js: "4"
+      env: TASK=test-node
+    - node_js: "4"
+      env: TASK=test-browser
+env:
+  global:
+    - secure: DiX+NDm8EqzsaFnaJicFsmUYvfFdtK47YEuM+Bs3kB5EucL8gXogv4lWecRSYtMu7M7KJ6qDG1ayRBC6bLiSZuUM91vZLCbHCuvVCvkQmx/Ny98n7pBbuljFNpZGV3ICBYX5ETcF/KzX35N7dxb06QTyho/ewaOMpHmXKXyKJJg=
+    - secure: xkab9kNYafYfr9xkL7dqNik89R+F7PfHUHtq5wb0cHkQ5HF6b8iGQnOggk4VXXO0fEuJB5AWxvE3aGpEh5/xohMvmR76b1hjIBXRnyI8tbhUHtZuOm3eo9rTNbPCob2pH7N0WX9zzSfx9rf/DKU9frVRKCH4arya87/ETkwuXbk=
+before_install:
+  - 'if [ "${TRAVIS_NODE_VERSION}" == "0.8" ]; then npm install -g npm@2.14.9; fi'
+script:
+  - "npm run ${TASK}"
+after_script:
+  - 'if [ "${TASK}" == "test-node" ]; then npm i coveralls@2 && cat coverage/lcov.info | coveralls; fi'
 notifications:
   irc:
     channels:
