@@ -1,6 +1,6 @@
 # Recovery
 
-[![Made by unshift][made-by]](http://unshift.io)[![Version npm][version]](http://browsenpm.org/package/recovery)[![Build Status][build]](https://travis-ci.org/unshiftio/recovery)[![Dependencies][david]](https://david-dm.org/unshiftio/recovery)[![Coverage Status][cover]](https://coveralls.io/r/unshiftio/recovery?branch=master)[![IRC channel][irc]](http://webchat.freenode.net/?channels=unshift)
+[![Made by unshift][made-by]](http://unshift.io)[![Version npm][version]](http://browsenpm.org/package/recovery)[![Build Status][build]](https://travis-ci.org/unshiftio/recovery)[![Dependencies][david]](https://david-dm.org/unshiftio/recovery)[![Coverage Status][cover]](https://coveralls.io/r/unshiftio/recovery?branch=master)[![IRC channel][irc]](https://webchat.freenode.net/?channels=unshift)
 
 [![Sauce Test Status][browser-matrix]](https://saucelabs.com/u/recovery)
 
@@ -11,10 +11,11 @@
 [david]: https://img.shields.io/david/unshiftio/recovery.svg?style=flat-square
 [cover]: https://img.shields.io/coveralls/unshiftio/recovery/master.svg?style=flat-square
 [irc]: https://img.shields.io/badge/IRC-irc.freenode.net%23unshift-00a8ff.svg?style=flat-square
+[Primus]: http://primus.io
 
 Recovery provides randomized exponential back off for reconnection attempts. It
 allows you to recover the connection in the most optimal way (for both server
-and client). The exponential back off is randomized to prevent a DDOS like
+and client). The exponential back off is randomized to prevent a DDoS like
 attack on your server when it's restarted, spreading the reconnection attempts
 instead of having all your connections attempt to reconnect at exactly the same
 time.
@@ -28,11 +29,11 @@ time.
 
 The code base of this module was originally written for [Primus] but has been
 extracted as separate module. It has been thoroughly tested and it's written
-with love `<3`
+with love `<3`.
 
 ## Installation
 
-As this module can be used with node.js and browserify it's released in the `npm`
+As this module can be used with Node.js and browserify it's released in the `npm`
 registry and can be installed using:
 
 ```
@@ -41,9 +42,9 @@ npm install --save recovery
 
 ## Events
 
-As mentioned in the documentation introduction, this library provides various of
+As mentioned in the documentation introduction, this library provides various
 reconnection and progress events. Events **always** receive a "status" or
-progress object as last argument. This object contains useful information about
+progress object as last argument. This object contains useful informations about
 current reconnection progress:
 
 - `attempt`:  Which reconnection attempt are we currently processing.
@@ -80,10 +81,10 @@ The following options are accepted:
 
 - `max` Maximum reconnection delay. Defaults to `Infinity`.
 - `min` Minimum reconnection delay. Defaults to `500 ms`.
-- `retries` Maximum amount retries after this we will emit an `reconnect failed`
+- `retries` Maximum amount of retries. After this we will emit a `reconnect failed`
   event. Defaults to `10`.
 - `reconnect timeout` Time you have to reconnect to the server. If it takes
-  longer than the specified value we will emit an `reconnect timeout` event and
+  longer than the specified value we will emit a `reconnect timeout` event and
   schedule another reconnection attempt. Defaults to `30 seconds`.
 - `factor` Exponential back off factor. Defaults to `2`.
 
@@ -130,7 +131,7 @@ recovery.on('reconnect', function (opts) {
 recovery.reconnect();
 ```
 
-Alternatively you also call the callback which is provided in the `reconnect`
+Alternatively you can call the callback which is provided in the `reconnect`
 event which is the same as the `reconnected` method.
 
 ```js
@@ -156,5 +157,3 @@ if (recovery.reconnecting()) recovery.reset();
 ## License
 
 [MIT](LICENSE)
-
-[Primus]: http://primus.io
