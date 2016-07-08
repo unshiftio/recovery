@@ -108,7 +108,7 @@ we will start a timeout so your attempts have only a limited amount of time to
 succeed or fail. If the timeout expires we emit a `reconnect timeout` event and
 start a whole new reconnection procedure.
 
-If your reconnection attempt is successful call the `reconnect.reconnected()`
+If your reconnection attempt is successful call the `recovery.reconnected()`
 method without any arguments. If it failed you can call the method with an error
 argument. If the operation failed we will automatically schedule a new reconnect
 attempt. When it's successful we will do some small internal clean up and emit
@@ -123,8 +123,8 @@ recovery.on('reconnect', function (opts) {
   console.log(opts.attempt);
 
   reconnectmyconnection(function (err) {
-    if (err) return reconnect.reconnected(err);
-    reconnect.reconnected();
+    if (err) return recovery.reconnected(err);
+    recovery.reconnected();
   });
 });
 
