@@ -37,6 +37,7 @@
   "dependencies": {
     "demolish": "1.0.x",
     "eventemitter3": "~2.0.2",
+    "inherits": "~2.0.3",
     "millisecond": "0.1.x",
     "one-time": "0.0.x",
     "tick-tock": "1.0.x"

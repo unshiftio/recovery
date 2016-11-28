@@ -2,6 +2,7 @@
 
 var EventEmitter = require('eventemitter3')
   , millisecond = require('millisecond')
+  , inherits = require('inherits')
   , destroy = require('demolish')
   , Tick = require('tick-tock')
   , one = require('one-time');
@@ -33,6 +34,8 @@ function Recovery(options) {
 
   if (!(recovery instanceof Recovery)) return new Recovery(options);
 
+  EventEmitter.call(recovery);
+
   options = options || {};
 
   recovery.attempt = null;        // Stores the current reconnect attempt.
@@ -46,8 +49,7 @@ function Recovery(options) {
   recovery.timers = new Tick(recovery);
 }
 
-Recovery.prototype = new EventEmitter();
-Recovery.prototype.constructor = Recovery;
+inherits(Recovery, EventEmitter);
 
 Recovery['reconnect timeout'] = '30 seconds';  // Maximum time to wait for an answer.
 Recovery.max = Infinity;                       // Maximum delay.
