@@ -39,7 +39,7 @@
     "eventemitter3": "~3.1.0",
     "inherits": "~2.0.3",
     "millisecond": "~0.1.2",
-    "one-time": "~0.0.4",
+    "one-time": "~1.0.0",
     "tick-tock": "~1.0.0"
   },
   "repository": {
