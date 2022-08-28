@@ -1,6 +1,6 @@
 # Recovery
 
-[![Version npm][version]](http://browsenpm.org/package/recovery)[![Build Status][build]](https://github.com/unshiftio/recovery/actions?query=workflow%3ACI+branch%3Amaster)[![Dependencies][david]](https://david-dm.org/unshiftio/recovery)[![Coverage Status][cover]](https://coveralls.io/r/unshiftio/recovery?branch=master)
+[![Version npm][version]](https://www.npmjs.com/package/recovery)[![Build Status][build]](https://github.com/unshiftio/recovery/actions?query=workflow%3ACI+branch%3Amaster)[![Dependencies][david]](https://david-dm.org/unshiftio/recovery)[![Coverage Status][cover]](https://coveralls.io/r/unshiftio/recovery?branch=master)
 
 [version]: https://img.shields.io/npm/v/recovery.svg?style=flat-square
 [build]: https://img.shields.io/github/workflow/status/unshiftio/recovery/CI/master?label=CI&style=flat-square
