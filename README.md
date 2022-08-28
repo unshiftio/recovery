@@ -5,7 +5,7 @@
 [version]: https://img.shields.io/npm/v/recovery.svg?style=flat-square
 [build]: https://img.shields.io/github/workflow/status/unshiftio/recovery/CI/master?label=CI&style=flat-square
 [cover]: https://img.shields.io/coveralls/unshiftio/recovery/master.svg?style=flat-square
-[Primus]: http://primus.io
+[Primus]: https://github.com/primus/primus
 
 Recovery provides randomized exponential back off for reconnection attempts. It
 allows you to recover the connection in the most optimal way (for both server
