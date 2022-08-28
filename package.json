@@ -4,10 +4,8 @@
   "description": "Recover from a network failure using randomized exponential backoff",
   "main": "index.js",
   "scripts": {
-    "100%": "istanbul check-coverage --statements 100 --functions 100 --lines 100 --branches 100",
-    "coverage": "istanbul cover _mocha -- test.js",
-    "watch": "mocha --watch test.js",
-    "test": "mocha test.js"
+    "test": "c8 --reporter=lcov --reporter=text mocha test.js",
+    "watch": "mocha --watch test.js"
   },
   "keywords": [
     "random",
@@ -27,7 +25,7 @@
   "license": "MIT",
   "devDependencies": {
     "assume": "~1.5.0",
-    "istanbul": "~0.4.5",
+    "c8": "~7.12.0",
     "mocha": "~3.5.0",
     "pre-commit": "~1.2.0"
   },
@@ -42,9 +40,5 @@
   "repository": {
     "type": "git",
     "url": "https://github.com/unshiftio/recovery.git"
-  },
-  "pre-commit": [
-    "coverage",
-    "100%"
-  ]
+  }
 }
