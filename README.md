@@ -1,13 +1,11 @@
 # Recovery
 
-[![Made by unshift][made-by]](http://unshift.io)[![Version npm][version]](http://browsenpm.org/package/recovery)[![Build Status][build]](https://github.com/unshiftio/recovery/actions?query=workflow%3ACI+branch%3Amaster)[![Dependencies][david]](https://david-dm.org/unshiftio/recovery)[![Coverage Status][cover]](https://coveralls.io/r/unshiftio/recovery?branch=master)[![IRC channel][irc]](https://webchat.freenode.net/?channels=unshift)
+[![Version npm][version]](http://browsenpm.org/package/recovery)[![Build Status][build]](https://github.com/unshiftio/recovery/actions?query=workflow%3ACI+branch%3Amaster)[![Dependencies][david]](https://david-dm.org/unshiftio/recovery)[![Coverage Status][cover]](https://coveralls.io/r/unshiftio/recovery?branch=master)
 
-[made-by]: https://img.shields.io/badge/made%20by-unshift-00ffcc.svg?style=flat-square
 [version]: https://img.shields.io/npm/v/recovery.svg?style=flat-square
 [build]: https://img.shields.io/github/workflow/status/unshiftio/recovery/CI/master?label=CI&style=flat-square
 [david]: https://img.shields.io/david/unshiftio/recovery.svg?style=flat-square
 [cover]: https://img.shields.io/coveralls/unshiftio/recovery/master.svg?style=flat-square
-[irc]: https://img.shields.io/badge/IRC-irc.freenode.net%23unshift-00a8ff.svg?style=flat-square
 [Primus]: http://primus.io
 
 Recovery provides randomized exponential back off for reconnection attempts. It
