@@ -1,9 +1,9 @@
 # Recovery
 
-[![Version npm][version]](https://www.npmjs.com/package/recovery)[![Build Status][build]](https://github.com/unshiftio/recovery/actions?query=workflow%3ACI+branch%3Amaster)[![Coverage Status][cover]](https://coveralls.io/r/unshiftio/recovery?branch=master)
+[![Version npm][version]](https://www.npmjs.com/package/recovery)[![CI][ci]](https://github.com/unshiftio/recovery/actions?query=workflow%3ACI+branch%3Amaster)[![Coverage Status][cover]](https://coveralls.io/r/unshiftio/recovery?branch=master)
 
 [version]: https://img.shields.io/npm/v/recovery.svg?style=flat-square
-[build]: https://img.shields.io/github/workflow/status/unshiftio/recovery/CI/master?label=CI&style=flat-square
+[ci]: https://img.shields.io/github/actions/workflow/status/unshiftio/recovery/ci.yml?branch=master&label=CI&style=flat-square
 [cover]: https://img.shields.io/coveralls/unshiftio/recovery/master.svg?style=flat-square
 [Primus]: https://github.com/primus/primus
 
