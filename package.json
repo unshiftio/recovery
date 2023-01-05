@@ -31,7 +31,7 @@
   },
   "dependencies": {
     "demolish": "~1.0.2",
-    "eventemitter3": "~4.0.0",
+    "eventemitter3": "~5.0.0",
     "inherits": "~2.0.3",
     "millisecond": "~0.1.2",
     "one-time": "~1.0.0",
